@@ -18,5 +18,14 @@ class Day1Spec extends AnyFunSpec with Matchers {
         Day1.countIncreasing((0 until 20).reverse.toVector) should equal(0)
       }
     }
+
+    describe("getMeasurementWindows") {
+      it("should calculate a sliding window of 3 measurements") {
+        val measurements = Vector(1, 2, 3, 4, 5, 6, 7, 8)
+        val windows = Vector((1, 2, 3), (2, 3, 4), (3, 4, 5), (4, 5, 6), (5, 6, 7), (6, 7, 8))
+
+        Day1.getMeasurementWindows(measurements) should equal(windows)
+      }
+    }
   }
 }
