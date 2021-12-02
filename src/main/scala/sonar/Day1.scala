@@ -3,7 +3,7 @@ package sonar
 import scala.io.Source
 import scala.util.Using
 
-object Day1 extends App {
+object Day1 {
 
   def fromFile(pathFromFile: String): Vector[Int] = {
 
@@ -25,8 +25,15 @@ object Day1 extends App {
   def windowedInput(vals: Vector[Int]): Vector[Int] = {
     // solve day 1, part 2: reduce vals into groups of 3 w/ overlaps of 2 (see https://adventofcode.com/2021/day/1#part2)
     vals.sliding(3, 1).map(_.sum).toVector
+
   }
 
+  def getMeasurementWindows(vals: Vector[Int]): Vector[(Int, Int, Int)] = {
+    (vals, vals.drop(1), vals.drop(2)).zipped.toVector
+  }
+}
+
+object Day1p1 extends App {
   sys.env.get("sonar-day1-input") match {
     case Some(pp) =>
       println(s"Answer for day 1, part 1 is definitely: ${countIncreasing(fromFile(pp))}")
@@ -35,3 +42,16 @@ object Day1 extends App {
       throw new IllegalStateException("Bogus env")
   }
 }
+
+object Day1p2 extends App {
+  sys.env.get("sonar-day1-input") match {
+    case Some(pp) =>
+      val measurements = Day1.getMeasurementWindows(Day1.fromFile(pp)).map {
+        case (x, y, z) => x + y + z
+      }
+      println(s"Your answer is definitely: ${Day1.countIncreasing(measurements)}")
+    case None =>
+      throw new IllegalStateException("Bogus env")
+  }
+}
+
