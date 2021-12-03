@@ -36,8 +36,8 @@ object Day1 {
 object Day1p1 extends App {
   sys.env.get("sonar-day1-input") match {
     case Some(pp) =>
-      println(s"Answer for day 1, part 1 is definitely: ${countIncreasing(fromFile(pp))}")
-      println(s"Answer for day 1, part 2 is definitely: ${countIncreasing(windowedInput(fromFile(pp)))}")
+      println(s"Answer for day 1, part 1 is definitely: ${Day1.countIncreasing(Day1.fromFile(pp))}")
+      println(s"Answer for day 1, part 2 (mdye) is definitely: ${Day1.countIncreasing(Day1.windowedInput(Day1.fromFile(pp)))}")
     case None =>
       throw new IllegalStateException("Bogus env")
   }
@@ -49,7 +49,7 @@ object Day1p2 extends App {
       val measurements = Day1.getMeasurementWindows(Day1.fromFile(pp)).map {
         case (x, y, z) => x + y + z
       }
-      println(s"Your answer is definitely: ${Day1.countIncreasing(measurements)}")
+      println(s"Answer for day 1, part 2 (redjohn) is definitely: ${Day1.countIncreasing(measurements)}")
     case None =>
       throw new IllegalStateException("Bogus env")
   }
