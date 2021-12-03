@@ -18,5 +18,11 @@ class Day1Spec extends AnyFunSpec with Matchers {
         Day1.countIncreasing((0 until 20).reverse.toVector) should equal(0)
       }
     }
+
+    describe("windowedInput") {
+      it ("should group and sum") {
+        Day1.windowedInput(Vector(100,101,5,6,1,201)) should contain allOf(206, 112, 12, 208)
+      }
+    }
   }
 }
