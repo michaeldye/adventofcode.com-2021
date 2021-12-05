@@ -13,20 +13,20 @@ object Day2 {
   }
 
 
-  // return value is going to be (horiz_pos_adjustment, depth_pos_adjustment) where either can be 0 and the second can be negative
-  def toVal(dir: String, qt: String): Try[(Int, Int)] = {
+  // return value is going to be (horiz_pos_adjustment, depth_pos_adjustment, aim_pos_adjustment, aim_pos_multiplier) where either can be 0 and the second can be negative
+  def toVal(dir: String, qt: String): Try[(Int, Int, Int, Int)] = {
 
     Try(Integer.parseInt(qt)) match {
       case Success(qt_i) =>
-        if (dir == "down") Success(0, qt_i)
-        else if (dir == "up") Success(0, Math.negateExact(qt_i))
-        else if (dir == "forward") Success(qt_i, 0)
+        if (dir == "down") Success(0, 0, qt_i, 0)
+        else if (dir == "up") Success(0, 0, Math.negateExact(qt_i), 0)
+        else if (dir == "forward") Success(qt_i, 0, 0, qt_i)
         else Failure(new IllegalStateException(s"Unknown direction, $dir"))
       case Failure(th) => Failure(th) // TODO: a better way to do this?
     }
   }
 
-  def posTranslate(directions: Vector[String]): Vector[Try[(Int, Int)]] = {
+  def posTranslate(directions: Vector[String]): Vector[Try[(Int, Int, Int, Int)]] = {
     val Pattern = "(\\w+) (\\d+)".r
 
     directions.map {
@@ -42,8 +42,25 @@ object Day2 {
         val (success, failures) = posTranslate(v).partition(_.isSuccess)
         if (failures.nonEmpty) Failure(new Exception(s"Bogus input lines $failures"))
         else {
-          val summed = success.map(_.get).reduce((a,b) => ( a._1 + b._1, a._2 + b._2 ))
-          Success(summed._1 * summed._2)
+          // we don't care about accumulating the fourth value in the tuple we get from posTranslate (it's a multiplier for depth, not a value useful on its own)
+          val accumulated = success.map(_.get).foldLeft((0, 0, 0)) { (acc, vv) =>
+            val hpa_acc = acc._1
+            val dpa_acc = acc._2
+            val apa_acc = acc._3
+
+            val hpa = vv._1
+            val dpa = vv._2
+            val apa = vv._3
+            val apm = vv._4
+
+            // unless the direction tuple processed has a non-zero value for apm (the multiplier), dpa_acc is unaffected by this
+            val dpa_adjustment = apa_acc * apm
+
+            (hpa_acc + hpa, dpa_acc + dpa + dpa_adjustment, apa_acc + apa)
+          }
+
+          // we ignore the third accumulated value
+          Success(accumulated._1 * accumulated._2)
         }
       case Failure(th) => Failure(th) // TODO: a better way to do this?
     }
@@ -54,7 +71,7 @@ object Day2p1 extends App {
   sys.env.get("sonar-day2-input") match {
     case Some(pp) =>
       Day2.directionTotal(Day2.fromFile(pp)) match {
-        case Success(v: Int) => println(s"Answer for day 2, part 1 is definitely: $v")
+        case Success(v: Int) => println(s"Answer for day 2, part 2 is definitely: $v")
         case Failure(th: Throwable) => System.err.println(s"Failure calculating total; ", th)
       }
     case None =>
