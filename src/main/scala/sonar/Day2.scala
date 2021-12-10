@@ -112,13 +112,9 @@ object Day2mdye extends App {
 }
 
 object Day2gp extends App {
-  val result = for {
-    cli <- AOCCliParser.parseCli(args)
-    file <- FileParser.readFile(cli.challInput)
-  } yield {
-    val p1 = Day02Part1_GP.handleMovementCommands(file)
-    val p2 = Day02Part2_GP.handleMovementCommands(file)
-    s"p1: $p1\np2: $p2"
-  }
-  println(result.get)
+  Runner.solve(
+    args,
+    Day02Part1_GP.handleMovementCommands,
+    Day02Part2_GP.handleMovementCommands,
+  )
 }
