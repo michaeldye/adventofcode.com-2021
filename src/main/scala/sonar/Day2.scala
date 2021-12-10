@@ -3,6 +3,37 @@ package sonar
 import scala.io.Source
 import scala.util.{Failure, Success, Try, Using}
 
+object Day02Part1_GP {
+  def handleMovement(x_y_accumulator: (Int, Int), next: String) ={
+    next.split(" ").toSeq match {
+        case "up" +: movement +: _ => (x_y_accumulator._1, x_y_accumulator._2 - movement.toInt)
+        case "down" +: movement +: _ => (x_y_accumulator._1, x_y_accumulator._2 + movement.toInt)
+        case "forward" +: movement +: _ =>
+          (x_y_accumulator._1 + movement.toInt, x_y_accumulator._2)
+      }
+  }
+  def handleMovementCommands(commands: Seq[String]): Int = {
+    val coords = commands.foldLeft((0, 0))(handleMovement)
+    coords._1 * coords._2
+  }
+}
+
+object Day02Part2_GP {
+  def handleMovement(x_y_aim: (Int, Int, Int), next: String) ={
+    val (x, y, aim) = x_y_aim
+    next.split(" ").toSeq match {
+        case "up" +: movement +: _ => (x, y, aim - movement.toInt)
+        case "down" +: movement +: _ => (x, y, aim + movement.toInt)
+        case "forward" +: movement +: _ =>
+          (x + movement.toInt, y+(aim*movement.toInt), aim)
+      }
+  }
+  def handleMovementCommands(commands: Seq[String]): Int = {
+    val coords = commands.foldLeft((0, 0, 0))(handleMovement)
+    coords._1 * coords._2
+  }
+}
+
 object Day2 {
 
   def fromFile(pathFromFile: String): Try[Vector[String]] = {
@@ -11,7 +42,6 @@ object Day2 {
       file.getLines().toVector
     })
   }
-
 
   // return value is going to be (horiz_pos_adjustment, depth_pos_adjustment, aim_pos_adjustment, aim_pos_multiplier) where either can be 0 and the second can be negative
   def toVal(dir: String, qt: String): Try[(Int, Int, Int, Int)] = {
@@ -67,7 +97,7 @@ object Day2 {
   }
 }
 
-object Day2p1 extends App {
+object Day2mdye extends App {
   sys.env.get("sonar-day2-input") match {
     case Some(pp) =>
       Day2.directionTotal(Day2.fromFile(pp)) match {
@@ -79,4 +109,16 @@ object Day2p1 extends App {
       sys.exit(1)
   }
 
+}
+
+object Day2gp extends App {
+  val result = for {
+    cli <- AOCCliParser.parseCli(args)
+    file <- FileParser.readFile(cli.challInput)
+  } yield {
+    val p1 = Day02Part1_GP.handleMovementCommands(file)
+    val p2 = Day02Part2_GP.handleMovementCommands(file)
+    s"p1: $p1\np2: $p2"
+  }
+  println(result.get)
 }
