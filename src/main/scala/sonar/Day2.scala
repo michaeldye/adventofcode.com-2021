@@ -46,13 +46,14 @@ object Day2 {
   // return value is going to be (horiz_pos_adjustment, depth_pos_adjustment, aim_pos_adjustment, aim_pos_multiplier) where either can be 0 and the second can be negative
   def toVal(dir: String, qt: String): Try[(Int, Int, Int, Int)] = {
 
-    Try(Integer.parseInt(qt)) match {
-      case Success(qt_i) =>
-        if (dir == "down") Success(0, 0, qt_i, 0)
-        else if (dir == "up") Success(0, 0, Math.negateExact(qt_i), 0)
-        else if (dir == "forward") Success(qt_i, 0, 0, qt_i)
-        else Failure(new IllegalStateException(s"Unknown direction, $dir"))
-      case Failure(th) => Failure(th) // TODO: a better way to do this?
+    // use for comprehension to unclutter the try ... success / failure logic from the original (thx to redjohn for the suggestion)
+    for {
+      qt_i <- Try(Integer.parseInt(qt))
+    } yield {
+        if (dir == "down") (0, 0, qt_i, 0)
+        else if (dir == "up") (0, 0, Math.negateExact(qt_i), 0)
+        else if (dir == "forward") (qt_i, 0, 0, qt_i)
+        else throw new IllegalStateException(s"Unknown direction, $dir")
     }
   }
 
