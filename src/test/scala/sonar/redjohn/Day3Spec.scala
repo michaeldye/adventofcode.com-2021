@@ -37,7 +37,8 @@ class Day3Spec extends AnyFunSpec with Matchers {
 
     describe("calculateLifeSupportRates") {
       it("calculates the oxygen generator and CO2 scrubber rates") {
-        Day3.calculateLifeSupportRates(report).oxygen should equal(23)
+        Day3.calculateLifeSupportRates(report).o2 should equal(23)
+        Day3.calculateLifeSupportRates(report).co2 should equal(10)
       }
     }
   }
