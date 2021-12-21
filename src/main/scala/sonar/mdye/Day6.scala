@@ -1,6 +1,9 @@
 package sonar.mdye
 
 import scala.annotation.tailrec
+import scala.collection.parallel.CollectionConverters.ImmutableIterableIsParallelizable
+import scala.collection.parallel.ForkJoinTaskSupport
+import scala.collection.parallel.immutable.ParIterable
 import scala.io.Source
 import scala.util.{Failure, Success, Try, Using}
 
@@ -10,17 +13,21 @@ object Day6 extends App {
     file.getLines().flatMap(_.split(",")).map(Integer.parseInt).toVector
   })
 
-  def runSim(initAges: Vector[Int], simDays: Int): Try[Vector[Fish]] = {
+  def runSim(initAges: Vector[Int], simDays: Int): Try[ParIterable[Fish]] = {
 
     @tailrec
-    def runSim0(school: Vector[Fish], days: Int): Vector[Fish] = {
+    def runSim0(school: ParIterable[Fish], days: Int): ParIterable[Fish] = {
       println(s"School size at sim day $days: ${school.size}")
       if (days == simDays) school
-      else runSim0(school.flatMap(_.tick()) ++: school, days+1)
+      else runSim0(school.flatMap(_.tick()) ++ school, days+1)
     }
 
+    val forkJoinPool = new java.util.concurrent.ForkJoinPool(20)
 
-    Try(runSim0(initAges.map(new Fish(_)).toVector, 0))
+    val parallelFish = initAges.map(new Fish(_)).par
+    parallelFish.tasksupport = new ForkJoinTaskSupport(forkJoinPool)
+
+    Try(runSim0(initAges.map(new Fish(_)).par, 0))
   }
 
   val res: Try[String] = for {
