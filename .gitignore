@@ -4,3 +4,4 @@
 .vscode
 target
 tmp
+.DS_Store
